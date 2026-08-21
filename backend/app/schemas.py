@@ -33,3 +33,26 @@ class Client(BaseModel):
 class HealthResponse(BaseModel):
     status: str
     version: str
+
+
+class DocumentResponse(BaseModel):
+    id: str
+    client_id: str
+    title: str
+    file_path: str
+    mime_type: str
+    file_size: int
+    extraction_status: str
+    extraction_error: str | None = None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class KnowledgeEntry(BaseModel):
+    id: str
+    client_id: str
+    title: str
+    snippet: str
+    source: str
+    score: float

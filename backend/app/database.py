@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from app.config import settings
@@ -35,3 +35,17 @@ def get_db():
 
 def init_db():
     Base.metadata.create_all(bind=engine)
+    _create_fts_tables()
+
+
+def _create_fts_tables():
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE VIRTUAL TABLE IF NOT EXISTS document_content USING fts5(
+                document_id,
+                client_id,
+                content,
+                tokenize='porter unicode61'
+            )
+        """))
+        conn.commit()

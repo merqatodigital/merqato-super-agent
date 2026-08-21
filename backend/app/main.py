@@ -4,6 +4,8 @@ from fastapi import FastAPI
 
 from app.database import init_db
 from app.routes.clients import router as clients_router
+from app.routes.documents import router as documents_router
+from app.routes.knowledge import router as knowledge_router
 from app.schemas import HealthResponse
 
 
@@ -16,6 +18,8 @@ async def lifespan(_app: FastAPI):
 app = FastAPI(title="MERQATO Super Agent API", version="0.1.0-draft", lifespan=lifespan)
 
 app.include_router(clients_router)
+app.include_router(documents_router)
+app.include_router(knowledge_router)
 
 
 @app.get("/health", response_model=HealthResponse, tags=["health"])
