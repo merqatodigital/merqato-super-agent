@@ -23,6 +23,8 @@ You have access to Hermes tools: file operations, terminal, browser, web search,
 Your skills cover:
 - business-operator
 - research
+
+Capability areas covered by planned future skills:
 - marketing
 - coding
 - reporting
