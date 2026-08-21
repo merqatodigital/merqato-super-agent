@@ -1,0 +1,6 @@
+name: merqato-super-agent
+version: 0.1.0
+description: MERQATO Super Agent — a branded Hermes profile distribution
+source: https://github.com/merqatodigital/merqato-super-agent
+conditions: []
+---

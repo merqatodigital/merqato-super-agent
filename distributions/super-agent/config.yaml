@@ -1,0 +1,45 @@
+# config.yaml — MERQATO Super Agent plan configuration
+
+# Default plan: solo (one Super Agent, no multi-bot fan-out)
+plan: solo
+
+model:
+  provider: openrouter
+  # Customer fills their own key in .env / Hermes credential store
+  # For Local plan: override to ollama/local model
+  # For Cloud plan: MERQATO supplies the model route
+
+limits:
+  active_bots: 1
+  parallel_delegations: 0
+  group_chat: false
+  bot_to_bot: false
+  scheduled_routines: 3
+  monthly_token_budget: customer_selected
+  per_task_token_limit: customer_selected
+  reasoning_level: low
+  premium_models: false
+
+tools:
+  enabled:
+    - file
+    - terminal
+    - browser
+    - web_search
+    - web_extract
+    - memory
+    - skills
+    - session_search
+    - cron
+
+skills:
+  enabled:
+    - business-operator
+    - research
+    - marketing
+    - coding
+    - reporting
+
+# Plan presets are documented in plan-presets/ for reference.
+# The active plan is read from this file; a MERQATO control layer
+# may override limits at runtime for Cloud/Bot Team/Enterprise plans.
