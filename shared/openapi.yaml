@@ -1,0 +1,448 @@
+openapi: 3.0.3
+info:
+  title: MERQATO Super Agent API
+  description: |
+    Preliminary OpenAPI contract for the MERQATO Super Agent backend.
+
+    This contract covers the customer onboarding, documents, knowledge,
+    settings, bots, tasks, and approvals surfaces. Hermes integration
+    endpoints are marked preliminary because the runtime interface has
+    not been verified against the live Hermes distribution.
+
+    Status: **preliminary**. Fields and behavior may change before
+    implementation.
+  version: 0.1.0-draft
+servers:
+  - url: http://localhost:8000
+
+tags:
+  - name: health
+    description: Service health
+  - name: hermes
+    description: Hermes agent runtime status (preliminary)
+  - name: clients
+    description: Customer onboarding and management
+  - name: documents
+    description: Business documents per client
+  - name: knowledge
+    description: Searchable knowledge per client
+  - name: settings
+    description: Client settings
+  - name: bots
+    description: Bot registry
+  - name: tasks
+    description: Task tracking
+  - name: approvals
+    description: Approval queue
+
+paths:
+  /health:
+    get:
+      tags:
+        - health
+      summary: Service health check
+      description: Returns service availability and basic runtime information.
+      operationId: getHealth
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  version:
+                    type: string
+                    example: "0.1.0-draft"
+
+  /api/hermes/status:
+    get:
+      tags:
+        - hermes
+      summary: Hermes agent status
+      description: |
+        Returns the current Hermes agent runtime status.
+
+        **Preliminary.** The exact fields and availability depend on
+        the Hermes distribution and runtime integration, which has not
+        yet been verified.
+      operationId: getHermesStatus
+      responses:
+        "200":
+          description: Hermes status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  running:
+                    type: boolean
+                  profile:
+                    type: string
+                  distribution_version:
+                    type: string
+                  note:
+                    type: string
+                    description: "Preliminary field — subject to change"
+
+  /api/clients:
+    post:
+      tags:
+        - clients
+      summary: Create a client
+      description: Onboards a new customer/client record.
+      operationId: createClient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateClientRequest"
+      responses:
+        "201":
+          description: Client created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Client"
+
+  /api/clients/{client_id}:
+    get:
+      tags:
+        - clients
+      summary: Get a client
+      operationId: getClient
+      parameters:
+        - name: client_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Client record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Client"
+
+  /api/clients/{client_id}/documents:
+    post:
+      tags:
+        - documents
+      summary: Upload a document
+      operationId: uploadDocument
+      parameters:
+        - name: client_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                title:
+                  type: string
+      responses:
+        "201":
+          description: Document created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+
+    get:
+      tags:
+        - documents
+      summary: List documents
+      operationId: listDocuments
+      parameters:
+        - name: client_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Document"
+
+  /api/clients/{client_id}/knowledge/search:
+    get:
+      tags:
+        - knowledge
+      summary: Search knowledge
+      operationId: searchKnowledge
+      parameters:
+        - name: client_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/KnowledgeEntry"
+
+  /api/clients/{client_id}/settings:
+    get:
+      tags:
+        - settings
+      summary: Get client settings
+      operationId: getClientSettings
+      parameters:
+        - name: client_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Client settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClientSettings"
+
+    put:
+      tags:
+        - settings
+      summary: Update client settings
+      operationId: updateClientSettings
+      parameters:
+        - name: client_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateClientSettingsRequest"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClientSettings"
+
+  /api/bots:
+    get:
+      tags:
+        - bots
+      summary: List bots
+      operationId: listBots
+      responses:
+        "200":
+          description: Bot registry
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Bot"
+
+  /api/tasks:
+    get:
+      tags:
+        - tasks
+      summary: List tasks
+      operationId: listTasks
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Task list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Task"
+
+  /api/approvals:
+    get:
+      tags:
+        - approvals
+      summary: List approvals
+      operationId: listApprovals
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Approval list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Approval"
+
+components:
+  schemas:
+    CreateClientRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        plan:
+          type: string
+          example: solo
+        contact_email:
+          type: string
+
+    Client:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        plan:
+          type: string
+        contact_email:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    Document:
+      type: object
+      properties:
+        id:
+          type: string
+        client_id:
+          type: string
+        title:
+          type: string
+        file_path:
+          type: string
+        mime_type:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    KnowledgeEntry:
+      type: object
+      properties:
+        id:
+          type: string
+        client_id:
+          type: string
+        title:
+          type: string
+        snippet:
+          type: string
+        source:
+          type: string
+        score:
+          type: number
+          format: float
+
+    ClientSettings:
+      type: object
+      properties:
+        client_id:
+          type: string
+        plan:
+          type: string
+        limits:
+          type: object
+        note:
+          type: string
+          description: "Settings shape is preliminary"
+
+    UpdateClientSettingsRequest:
+      type: object
+      properties:
+        plan:
+          type: string
+        limits:
+          type: object
+
+    Bot:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+        model:
+          type: string
+        status:
+          type: string
+
+    Task:
+      type: object
+      properties:
+        id:
+          type: string
+        client_id:
+          type: string
+        title:
+          type: string
+        status:
+          type: string
+        assigned_to:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    Approval:
+      type: object
+      properties:
+        id:
+          type: string
+        client_id:
+          type: string
+        action:
+          type: string
+        status:
+          type: string
+        requested_by:
+          type: string
+        created_at:
+          type: string
+          format: date-time
