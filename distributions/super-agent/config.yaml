@@ -1,45 +1,58 @@
-# config.yaml — MERQATO Super Agent plan configuration
+# config.yaml — MERQATO Super Agent configuration
 
-# Default plan: solo (one Super Agent, no multi-bot fan-out)
-plan: solo
+# NATIVE HERMES FIELDS ONLY.
+# This file is a valid Hermes profile config.yaml. It is installed
+# into the customer's profile directory by `hermes profile install`.
+#
+# MERQATO plan enforcement (plan:, limits:, tools:, skills:) is
+# handled by the MERQATO control layer, not by Hermes directly.
+# See SOUL.md for plan concepts and runtime boundaries.
 
 model:
+  default: "openrouter/anthropic/claude-sonnet-4"
   provider: openrouter
-  # Customer fills their own key in .env / Hermes credential store
-  # For Local plan: override to ollama/local model
-  # For Cloud plan: MERQATO supplies the model route
+  # Local plan: override provider to ollama, set OLLAMA_HOST
+  # BYOK plan: customer provides OPENROUTER_API_KEY in .env
+  # Cloud plan: MERQATO supplies model routing
 
-limits:
-  active_bots: 1
-  parallel_delegations: 0
-  group_chat: false
-  bot_to_bot: false
-  scheduled_routines: 3
-  monthly_token_budget: customer_selected
-  per_task_token_limit: customer_selected
-  reasoning_level: low
-  premium_models: false
+agent:
+  max_turns: 150
+  reasoning_effort: low
 
-tools:
-  enabled:
-    - file
-    - terminal
-    - browser
-    - web_search
-    - web_extract
-    - memory
-    - skills
-    - session_search
-    - cron
+display:
+  streaming: true
+  show_reasoning: false
 
-skills:
-  enabled:
-    - business-operator
-    - research
-    - marketing
-    - coding
-    - reporting
+memory:
+  memory_enabled: true
 
-# Plan presets are documented in plan-presets/ for reference.
-# The active plan is read from this file; a MERQATO control layer
-# may override limits at runtime for Cloud/Bot Team/Enterprise plans.
+# ── MERQATO PLAN NOTE ──────────────────────────────────────────────
+# The following concepts are enforced by the MERQATO control layer,
+# NOT by this config file. Hermes does not interpret these keys at
+# install or runtime. They are documented here so the installer can
+# read the plan intent, but they are not functional Hermes config.
+#
+# plan: solo
+# limits:
+#   active_bots: 1
+#   parallel_delegations: 0
+#   group_chat: false
+#   bot_to_bot: false
+#   scheduled_routines: 3
+#   monthly_token_budget: customer_selected
+#   per_task_token_limit: customer_selected
+#   reasoning_level: low
+#   premium_models: false
+#
+# tools: Hermes enables tools via toolset resolution at runtime.
+#   Default toolset for this distribution: file, terminal, browser,
+#   web_search, web_extract, memory, skills, session_search, cron.
+#
+# skills: Hermes skills are loaded from the skills/ directory and
+#   the Hermes skills catalog. They are not configured via config.yaml.
+#   Bundled skills for this distribution:
+#     - business-operator
+#     - research
+#     - marketing
+#     - coding
+#     - reporting

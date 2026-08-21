@@ -1,6 +1,20 @@
 name: merqato-super-agent
 version: 0.1.0
 description: MERQATO Super Agent — a branded Hermes profile distribution
-source: https://github.com/merqatodigital/merqato-super-agent
-conditions: []
----
+hermes_requires: ">=0.20.0"
+author: MerQato Digital
+license: MIT
+
+# Environment variables required by this distribution.
+# Required keys are checked at install time; optional keys are
+# provided with defaults. Installers fill their own values.
+# No API keys are shipped in the distribution.
+env_requires:
+  - name: OPENROUTER_API_KEY
+    description: "OpenRouter API key for model access (BYOK/Cloud plans)"
+    required: false
+    default: ""
+  - name: OLLAMA_HOST
+    description: "Ollama host for Local plan (optional)"
+    required: false
+    default: "http://localhost:11434"
