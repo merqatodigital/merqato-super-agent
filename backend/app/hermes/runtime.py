@@ -242,12 +242,21 @@ def create_customer_profile(
     """
     profile_name = f"customer-{client_id}"
     
-    # Use distribution from the repo if available
-    dist_path = None
-    repo_root = Path(__file__).parent.parent.parent  # backend/app/hermes/ → backend/
-    dist_candidate = repo_root / "distributions" / "super-agent"
-    if dist_candidate.exists():
-        dist_path = dist_candidate
+    # Resolve both the Docker layout (/app/distributions) and repository checkout.
+    configured_distribution = os.environ.get("MERQATO_DISTRIBUTION_PATH")
+    candidates = []
+    if configured_distribution:
+        candidates.append(Path(configured_distribution))
+    runtime_path = Path(__file__).resolve()
+    candidates.extend(
+        parent / "distributions" / "super-agent"
+        for parent in runtime_path.parents
+    )
+    dist_path = next((candidate for candidate in candidates if candidate.is_dir()), None)
+    if dist_path is None:
+        raise RuntimeError(
+            "MERQATO Super Agent distribution not found; set MERQATO_DISTRIBUTION_PATH"
+        )
     
     profile_dir = ensure_profile_exists(
         profile_name=profile_name,

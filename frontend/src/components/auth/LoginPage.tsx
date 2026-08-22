@@ -30,9 +30,8 @@ export function LoginPage({ onAuthenticated }: Props) {
     try {
       if (needsSetup) {
         await setupAccount({ email, password, name: name || "Admin" });
-      } else {
-        await login({ email, password });
       }
+      await login({ email, password });
       onAuthenticated?.();
       // Reload to re-evaluate session state in App.tsx
       window.location.reload();

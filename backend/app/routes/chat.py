@@ -13,7 +13,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from app.auth import require_session
+from app.auth import ensure_client_access, require_session
 from app.database import get_db
 from app.models import Client, ChatSession, ChatMessage
 from app.hermes.runtime import (
@@ -117,6 +117,7 @@ async def stream_chat_endpoint(
         # If client doesn't exist in our DB, create a minimal one
         # In production, this should be done through proper onboarding
         raise HTTPException(status_code=404, detail="Client not found")
+    ensure_client_access(_token, client_id, db)
     
     # Ensure the Hermes profile exists for this client
     profile_name = _ensure_client_profile_exists(client, db)
@@ -132,16 +133,36 @@ async def stream_chat_endpoint(
         started_at=datetime.now(timezone.utc),
     )
     db.add(chat_session)
+    db.add(ChatMessage(
+        id=str(uuid4()),
+        session_id=session_id,
+        role="user",
+        content=message,
+        model=model,
+        created_at=datetime.now(timezone.utc),
+    ))
     db.commit()
     
     # Create a streaming response that yields SSE events
     async def event_generator():
         try:
+            response_chunks = []
             # Stream the chat response
             for chunk in stream_chat(profile_name, [{"role": "user", "content": message}], model=model):
-                # Yield as SSE event
+                response_chunks.append(chunk)
                 yield f"data: {chunk}"
                 yield "\n\n"
+
+            db.add(ChatMessage(
+                id=str(uuid4()),
+                session_id=session_id,
+                role="assistant",
+                content="".join(response_chunks),
+                model=model,
+                created_at=datetime.now(timezone.utc),
+            ))
+            chat_session.ended_at = datetime.now(timezone.utc)
+            db.commit()
             
             # Mark session as complete
             yield f"data: [DONE]"
@@ -177,6 +198,7 @@ async def chat_endpoint(
     client = client_service.get_client(db, client_id)
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
+    ensure_client_access(_token, client_id, db)
     
     profile_name = _ensure_client_profile_exists(client, db)
     
@@ -247,6 +269,7 @@ async def hermes_status(
     }
     
     if client_id:
+        ensure_client_access(_token, client_id, db)
         client = client_service.get_client(db, client_id)
         if client:
             profile_name = _get_client_profile(client)

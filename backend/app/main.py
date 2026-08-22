@@ -15,8 +15,8 @@ from app.schemas import HealthResponse, LoginRequest, SetupRequest
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    _ensure_password_column()
     init_db()
+    _ensure_password_column()
     yield
 
 

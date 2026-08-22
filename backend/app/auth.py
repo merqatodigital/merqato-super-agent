@@ -98,3 +98,25 @@ async def require_session(
         )
     request.state.client_id = client_id
     return client_id
+
+
+def ensure_client_access(session_client_id: str, target_client_id: str, db) -> None:
+    """Allow the instance administrator or the owner of the customer workspace."""
+    if session_client_id == target_client_id:
+        return
+
+    from app.models import Client
+
+    administrator = (
+        db.query(Client)
+        .filter(Client.password_hash.is_not(None))
+        .order_by(Client.created_at.asc())
+        .first()
+    )
+    if administrator is not None and administrator.id == session_client_id:
+        return
+
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="You do not have access to this customer workspace",
+    )

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
-from app.auth import require_session
+from app.auth import ensure_client_access, require_session
 from app.database import get_db
 from app.schemas import KnowledgeEntry
 from app.services import knowledge_service, client_service
@@ -19,5 +19,6 @@ def search_knowledge(
     client = client_service.get_client(db, client_id)
     if not client:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client not found")
+    ensure_client_access(_token, client_id, db)
 
     return knowledge_service.search_knowledge(db, client_id, q)

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.auth import require_session
+from app.auth import ensure_client_access, require_session
 from app.database import get_db
 from app.schemas import Client, CreateClientRequest
 from app.services import client_service
@@ -28,4 +28,5 @@ def get_client(
     client = client_service.get_client(db, client_id)
     if not client:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Client not found")
+    ensure_client_access(_token, client_id, db)
     return client

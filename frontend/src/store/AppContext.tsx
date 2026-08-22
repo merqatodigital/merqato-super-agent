@@ -1722,6 +1722,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
               modelId,
 
+              clientId: settings.clientId,
+
               apiKey: settings.apiKey,
 
               ollamaUrl: settings.ollamaUrl,

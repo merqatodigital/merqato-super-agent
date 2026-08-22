@@ -241,6 +241,7 @@ export const backend = {
   async streamChat(opts: {
     model: CatalogModel | undefined;
     modelId: string;
+    clientId: string;
     apiKey: string;
     ollamaUrl: string;
     messages: ChatTurn[];
@@ -248,7 +249,7 @@ export const backend = {
     onDelta: (chunk: string) => void;
   }): Promise<StreamResult> {
     const params = new URLSearchParams();
-    params.set("client_id", "current");
+    params.set("client_id", opts.clientId);
     params.set("message", opts.messages[opts.messages.length - 1]?.content || "");
     if (opts.modelId) params.set("model", opts.modelId);
 
