@@ -1,0 +1,10 @@
+backend/tests/
+backend/.pytest_cache/
+backend/storage/
+backend/merqato.db
+backend/.env
+frontend/node_modules/
+frontend/.vite/
+*.pyc
+__pycache__/
+.git/
