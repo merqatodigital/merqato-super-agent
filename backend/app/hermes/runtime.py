@@ -23,7 +23,7 @@ HERMES_CLI = os.environ.get(
 )
 HERMES_BASE = Path(os.environ.get(
     "HERMES_BASE",
-    r"C:\Users\david\AppData\Local\hermes\hermes-agent",
+    r"C:\Users\david\AppData\Local\hermes",
 ))
 HERMES_PROFILES_DIR = Path(os.environ.get(
     "HERMES_PROFILES_DIR",
@@ -33,7 +33,7 @@ HERMES_PROFILES_DIR = Path(os.environ.get(
 
 def get_profile_dir(profile_name: str) -> Path:
     """Get the Hermes profile directory for a customer profile."""
-    return HERMES_BASE / "profiles" / profile_name
+    return HERMES_PROFILES_DIR / profile_name
 
 
 def ensure_profile_exists(
@@ -45,28 +45,25 @@ def ensure_profile_exists(
 ) -> Path:
     """Ensure a Hermes profile exists for a customer. Creates it if needed."""
     profile_dir = get_profile_dir(profile_name)
-    if profile_dir.exists():
-        return profile_dir
-    
-    profile_dir.mkdir(parents=True, exist_ok=True)
-    
-    # If a distribution is available, install it
-    if distribution_path and distribution_path.exists():
-        subprocess.run(
+    skills_dir = profile_dir / "skills"
+    needs_install = not profile_dir.exists() or not skills_dir.exists() or not list(skills_dir.iterdir())
+
+    # Install distribution if profile is fresh or skills are missing
+    if needs_install and distribution_path and distribution_path.exists():
+        result = subprocess.run(
             [str(HERMES_CLI), "profile", "install", str(distribution_path), "--name", profile_name, "--force", "-y"],
             capture_output=True,
             text=True,
             check=False,
+            stdin=subprocess.DEVNULL,
         )
-    
-    # Configure the profile
-    config_path = profile_dir / "config.yaml"
-    if config_path.exists():
-        config_content = config_path.read_text()
-        # Update model provider and name if specified
-        if model_provider or model_name:
-            # Simple config update - in production, use proper YAML parsing
-            pass
+        if result.returncode != 0:
+            import logging
+            logging.warning("hermes profile install failed: %s", result.stderr)
+
+    # If install didn't create it, create manually
+    if not profile_dir.exists():
+        profile_dir.mkdir(parents=True, exist_ok=True)
     
     # Store API key in profile .env if provided
     if api_key:
@@ -247,7 +244,7 @@ def create_customer_profile(
     
     # Use distribution from the repo if available
     dist_path = None
-    repo_root = Path(__file__).parent.parent.parent  # backend/ → repo root
+    repo_root = Path(__file__).parent.parent.parent.parent  # backend/app/hermes/ → repo root
     dist_candidate = repo_root / "distributions" / "super-agent"
     if dist_candidate.exists():
         dist_path = dist_candidate

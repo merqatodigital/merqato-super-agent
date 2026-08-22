@@ -37,5 +37,8 @@ env/
 .DS_Store
 Thumbs.db
 
+# Dependencies
+node_modules/
+
 # Hermes local state (user-specific, not part of distribution)
 ~/.hermes/
