@@ -13,6 +13,6 @@
   "outputDirectory": "frontend/dist",
   "routes": [
     { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    { "src": "/(.*)", "dest": "/frontend/index.html" }
   ]
 }
