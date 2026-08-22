@@ -35,6 +35,17 @@ class HealthResponse(BaseModel):
     version: str
 
 
+class SetupRequest(BaseModel):
+    email: str
+    password: str
+    name: str = "Admin"
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
 class DocumentResponse(BaseModel):
     id: str
     client_id: str

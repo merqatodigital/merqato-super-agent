@@ -8,14 +8,10 @@
         "installCommand": "npm install",
         "buildCommand": "npm run build"
       }
-    },
-    {
-      "src": "api/index.py",
-      "use": "@vercel/python"
     }
   ],
+  "outputDirectory": "frontend/dist",
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/index.py" },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]

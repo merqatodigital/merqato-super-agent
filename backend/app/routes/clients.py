@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.auth import require_admin
+from app.auth import require_session
 from app.database import get_db
 from app.schemas import Client, CreateClientRequest
 from app.services import client_service
@@ -13,7 +13,7 @@ router = APIRouter(prefix="/api/clients", tags=["clients"])
 def create_client(
     body: CreateClientRequest,
     db: Session = Depends(get_db),
-    _token: str = Depends(require_admin),
+    _token: str = Depends(require_session),
 ):
     client = client_service.create_client(db, name=body.name, **body.model_dump(exclude={"name"}))
     return client
@@ -23,7 +23,7 @@ def create_client(
 def get_client(
     client_id: str,
     db: Session = Depends(get_db),
-    _token: str = Depends(require_admin),
+    _token: str = Depends(require_session),
 ):
     client = client_service.get_client(db, client_id)
     if not client:

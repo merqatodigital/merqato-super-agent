@@ -35,6 +35,7 @@ class Client(Base):
     model_provider: Mapped[str | None] = mapped_column(String(100), nullable=True)
     model_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     hermes_profile: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    password_hash: Mapped[str | None] = mapped_column(String(512), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow)
 

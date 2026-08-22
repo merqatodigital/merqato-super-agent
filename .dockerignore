@@ -1,0 +1,11 @@
+frontend/node_modules/
+frontend/dist/
+backend/.pytest_cache/
+backend/__pycache__/
+backend/**/__pycache__/
+*.pyc
+.git/
+*.db
+.vercelignore
+vercel.json
+api/

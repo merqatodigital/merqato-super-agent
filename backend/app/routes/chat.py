@@ -13,7 +13,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from app.auth import require_admin
+from app.auth import require_session
 from app.database import get_db
 from app.models import Client, ChatSession, ChatMessage
 from app.hermes.runtime import (
@@ -102,7 +102,7 @@ async def stream_chat_endpoint(
     model: str | None = None,
     session_id: str | None = None,
     db: Session = Depends(get_db),
-    _token: str = Depends(require_admin),
+    _token: str = Depends(require_session),
 ):
     """Stream a chat response from Hermes for a customer.
     
@@ -167,7 +167,7 @@ async def chat_endpoint(
     client_id: str,
     request: ChatRequest,
     db: Session = Depends(get_db),
-    _token: str = Depends(require_admin),
+    _token: str = Depends(require_session),
 ):
     """Execute a chat query and return the complete response.
     
@@ -231,7 +231,7 @@ async def chat_endpoint(
 async def hermes_status(
     client_id: str | None = None,
     db: Session = Depends(get_db),
-    _token: str = Depends(require_admin),
+    _token: str = Depends(require_session),
 ):
     """Get the Hermes agent runtime status.
     

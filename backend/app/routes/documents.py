@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Form, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
-from app.auth import require_admin
+from app.auth import require_session
 from app.database import get_db
 from app.schemas import DocumentResponse
 from app.services import document_service, client_service
@@ -15,7 +15,7 @@ async def upload_document(
     file: UploadFile,
     title: str | None = Form(None),
     db: Session = Depends(get_db),
-    _token: str = Depends(require_admin),
+    _token: str = Depends(require_session),
 ):
     client = client_service.get_client(db, client_id)
     if not client:
@@ -37,7 +37,7 @@ async def upload_document(
 def list_documents(
     client_id: str,
     db: Session = Depends(get_db),
-    _token: str = Depends(require_admin),
+    _token: str = Depends(require_session),
 ):
     client = client_service.get_client(db, client_id)
     if not client:

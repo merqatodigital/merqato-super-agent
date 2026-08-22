@@ -19,11 +19,11 @@ from typing import Any, Callable, Iterator
 
 HERMES_CLI = os.environ.get(
     "HERMES_EXECUTABLE",
-    r"C:\Users\david\AppData\Local\hermes\hermes-agent\venv\Scripts\hermes.exe",
+    shutil.which("hermes") or "hermes",
 )
 HERMES_BASE = Path(os.environ.get(
     "HERMES_BASE",
-    r"C:\Users\david\AppData\Local\hermes",
+    str(Path.home() / ".local" / "hermes"),
 ))
 HERMES_PROFILES_DIR = Path(os.environ.get(
     "HERMES_PROFILES_DIR",
@@ -244,7 +244,7 @@ def create_customer_profile(
     
     # Use distribution from the repo if available
     dist_path = None
-    repo_root = Path(__file__).parent.parent.parent.parent  # backend/app/hermes/ → repo root
+    repo_root = Path(__file__).parent.parent.parent  # backend/app/hermes/ → backend/
     dist_candidate = repo_root / "distributions" / "super-agent"
     if dist_candidate.exists():
         dist_path = dist_candidate
