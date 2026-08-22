@@ -58,6 +58,90 @@ paths:
                     type: string
                     example: "0.1.0-draft"
 
+  /api/chat/stream:
+    post:
+      tags:
+        - hermes
+      summary: Stream a chat response
+      description: |
+        Streams a chat response from Hermes for a customer via SSE.
+        Requires admin authentication.
+      operationId: streamChat
+      parameters:
+        - name: client_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: message
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: model
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: session_id
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Streaming chat response
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+  /api/chat/{client_id}:
+    post:
+      tags:
+        - hermes
+      summary: Execute a chat query
+      description: |
+        Execute a chat query and return the complete response.
+        Non-streaming endpoint for simple queries.
+      operationId: chat
+      parameters:
+        - name: client_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                model:
+                  type: string
+                  nullable: true
+                session_id:
+                  type: string
+                  nullable: true
+      responses:
+        "200":
+          description: Chat response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response:
+                    type: string
+                  session_id:
+                    type: string
+                  model:
+                    type: string
+                    nullable: true
+
   /api/hermes/status:
     get:
       tags:
@@ -65,11 +149,13 @@ paths:
       summary: Hermes agent status
       description: |
         Returns the current Hermes agent runtime status.
-
-        **Preliminary.** The exact fields and availability depend on
-        the Hermes distribution and runtime integration, which has not
-        yet been verified.
       operationId: getHermesStatus
+      parameters:
+        - name: client_id
+          in: query
+          required: false
+          schema:
+            type: string
       responses:
         "200":
           description: Hermes status
@@ -82,52 +168,96 @@ paths:
                     type: boolean
                   profile:
                     type: string
+                    nullable: true
+                  profile_exists:
+                    type: boolean
                   distribution_version:
                     type: string
                   note:
                     type: string
-                    description: "Preliminary field — subject to change"
 
-  /api/clients:
+  /api/models/openrouter:
+    get:
+      tags:
+        - hermes
+      summary: List OpenRouter models
+      operationId: listOpenRouterModels
+      responses:
+        "200":
+          description: List of models
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  models:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ModelInfo"
+
+  /api/models/ollama:
+    get:
+      tags:
+        - hermes
+      summary: List Ollama models
+      operationId: listOllamaModels
+      parameters:
+        - name: base_url
+          in: query
+          required: false
+          schema:
+            type: string
+            default: "http://localhost:11434"
+      responses:
+        "200":
+          description: List of models
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  models:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ModelInfo"
+
+  /api/models/ollama/verify:
     post:
       tags:
-        - clients
-      summary: Create a client
-      description: Onboards a new customer/client record.
-      operationId: createClient
+        - hermes
+      summary: Verify Ollama connection
+      operationId: verifyOllamaConnection
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateClientRequest"
-      responses:
-        "201":
-          description: Client created
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Client"
-
-  /api/clients/{client_id}:
-    get:
-      tags:
-        - clients
-      summary: Get a client
-      operationId: getClient
-      parameters:
-        - name: client_id
-          in: path
-          required: true
-          schema:
-            type: string
+              type: object
+              properties:
+                base_url:
+                  type: string
       responses:
         "200":
-          description: Client record
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Client"
+          description: Ollama status
+
+  /api/openai/verify:
+    post:
+      tags:
+        - hermes
+      summary: Verify OpenRouter API key
+      operationId: verifyOpenRouterKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                api_key:
+                  type: string
+      responses:
+        "200":
+          description: Key verification result
 
   /api/clients/{client_id}/documents:
     post:

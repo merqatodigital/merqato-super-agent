@@ -33,9 +33,9 @@ def _sanitize_filename(filename: str) -> str:
 
 
 def _extract_pdf(file_path: str) -> str:
-    from PyPDF2 import PdfReader
-
-    reader = PdfReader(file_path)
+    import PyPDF2
+    
+    reader = PyPDF2.PdfReader(file_path)
     text_parts = []
     for page in reader.pages:
         page_text = page.extract_text()

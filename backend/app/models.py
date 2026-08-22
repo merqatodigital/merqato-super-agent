@@ -1,7 +1,9 @@
+"""Database models for chat sessions, messages, clients, and documents."""
+
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, Integer, String, Text
+from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -48,4 +50,30 @@ class Document(Base):
     file_size: Mapped[int] = mapped_column(Integer)
     extraction_status: Mapped[str] = mapped_column(String(20), default="pending")
     extraction_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+
+
+class ChatSession(Base):
+    __tablename__ = "chat_sessions"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    client_id: Mapped[str] = mapped_column(String(36), index=True)
+    model: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+    ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    total_tokens: Mapped[int] = mapped_column(Integer, default=0)
+    total_cost: Mapped[float] = mapped_column(default=0.0)
+
+
+class ChatMessage(Base):
+    __tablename__ = "chat_messages"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid)
+    session_id: Mapped[str] = mapped_column(String(36), ForeignKey("chat_sessions.id"), index=True)
+    role: Mapped[str] = mapped_column(String(20))  # user, assistant, system
+    content: Mapped[str] = mapped_column(Text)
+    model: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    tokens: Mapped[int] = mapped_column(Integer, default=0)
+    cost: Mapped[float] = mapped_column(default=0.0)
+    latency_ms: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)

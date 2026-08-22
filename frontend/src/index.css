@@ -1,0 +1,314 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Barlow Condensed", "IBM Plex Sans", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --color-void: #04070c;
+  --color-navy: #070b12;
+  --color-ink: #0a1018;
+  --color-panel: #0c141e;
+  --color-raised: #101a26;
+  --color-line: #163042;
+  --color-line-strong: #1e4a5c;
+  --color-cyan: #2ee6d6;
+  --color-cyan-bright: #7ff6ea;
+  --color-teal: #14c8b8;
+  --color-mint: #5eead4;
+  --color-muted: #a8c2ce;
+  --color-dim: #80a2b0;
+  --color-warn: #f5b942;
+  --color-danger: #f07167;
+  --color-ok: #34d399;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+    max-width: 100%;
+  }
+
+  /* Use the dynamic viewport on mobile so the browser chrome cannot clip the UI. */
+  @supports (height: 100dvh) {
+    html,
+    body,
+    #root {
+      height: 100dvh;
+    }
+  }
+
+  body {
+    margin: 0;
+    background: #04070c;
+    color: #f7fbff;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+    overflow-x: hidden;
+    overscroll-behavior-y: none;
+  }
+
+  /* Page headings scale down on phones without touching the desktop scale. */
+  @media (max-width: 640px) {
+    h1.font-display {
+      font-size: 26px;
+      line-height: 1.05;
+    }
+  }
+
+  /* Never let a stray wide child create a sideways scrollbar. */
+  img,
+  svg,
+  video,
+  canvas,
+  table {
+    max-width: 100%;
+  }
+
+  /* Long model ids, URLs and file names must wrap rather than widen the page. */
+  p,
+  span,
+  div,
+  li,
+  code,
+  pre {
+    overflow-wrap: anywhere;
+  }
+
+  /* Vertical scrollers must never scroll sideways. */
+  .scroll-thin {
+    overflow-x: hidden;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font-family: inherit;
+  }
+
+  ::selection {
+    background: rgba(46, 230, 214, 0.28);
+    color: #fff;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .panel {
+    background: linear-gradient(180deg, rgba(16, 28, 40, 0.92) 0%, rgba(10, 18, 28, 0.96) 100%);
+    border: 1px solid rgba(46, 230, 214, 0.12);
+    border-radius: 12px;
+  }
+
+  .panel-inset {
+    background: rgba(4, 10, 16, 0.55);
+    border: 1px solid rgba(46, 230, 214, 0.08);
+    border-radius: 10px;
+  }
+
+  .hairline {
+    border-color: rgba(46, 230, 214, 0.12);
+  }
+
+  .text-cyan-glow {
+    text-shadow: 0 0 18px rgba(46, 230, 214, 0.45);
+  }
+
+  .scroll-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(46, 230, 214, 0.28) transparent;
+  }
+
+  .scroll-thin::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scroll-thin::-webkit-scrollbar-thumb {
+    background: rgba(46, 230, 214, 0.28);
+    border-radius: 99px;
+  }
+
+  .scroll-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@keyframes orb-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes orb-spin-rev {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes orb-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes core-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.04);
+    filter: brightness(1.18);
+  }
+}
+
+@keyframes wave-drift {
+  0% {
+    transform: translateX(-6%);
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateX(6%);
+    opacity: 0.45;
+  }
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(-40%);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.35;
+  }
+  100% {
+    transform: translateY(140%);
+    opacity: 0;
+  }
+}
+
+@keyframes dash-move {
+  to {
+    stroke-dashoffset: -240;
+  }
+}
+
+@keyframes live-dot {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.7);
+  }
+  70% {
+    opacity: 0.55;
+    box-shadow: 0 0 0 6px rgba(52, 211, 153, 0);
+  }
+}
+
+@keyframes ticker {
+  from {
+    stroke-dashoffset: 80;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-orb-spin {
+  animation: orb-spin 28s linear infinite;
+}
+
+.animate-orb-spin-slow {
+  animation: orb-spin 48s linear infinite;
+}
+
+.animate-orb-spin-rev {
+  animation: orb-spin-rev 36s linear infinite;
+}
+
+.animate-orb-pulse {
+  animation: orb-pulse 4.6s ease-in-out infinite;
+}
+
+.animate-core {
+  animation: core-breathe 5.2s ease-in-out infinite;
+}
+
+.animate-wave {
+  animation: wave-drift 8s ease-in-out infinite;
+}
+
+.animate-live {
+  animation: live-dot 1.8s ease-out infinite;
+}
+
+.animate-fade-up {
+  animation: fade-up 0.45s ease both;
+}
+
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(46, 230, 214, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(46, 230, 214, 0.035) 1px, transparent 1px);
+  background-size: 42px 42px;
+}
+
+.radial-vignette {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 42%, rgba(20, 80, 90, 0.18), transparent 70%),
+    #04070c;
+}
